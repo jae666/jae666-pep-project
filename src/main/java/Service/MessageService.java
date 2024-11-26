@@ -4,6 +4,7 @@ import DAO.MessageDAO;
 import Model.Message;
 
 import java.util.List;
+import java.util.stream.Collectors; 
 
 public class MessageService {
 
@@ -32,8 +33,12 @@ public class MessageService {
     }
 
     // Method to delete a message by ID
-    public boolean deleteMessageById(int message_id) {
-        return messageDAO.deleteMessageById(message_id);
+    public Message deleteMessageById(int messageId) {
+        Message message = messageDAO.deleteMessageById(messageId);
+        if (message != null) {
+            return message; // Return the deleted message if found
+        }
+        return null; // Return null if the message does not exist
     }
 
     // Method to update a message's text
@@ -48,6 +53,6 @@ public class MessageService {
     public List<Message> getMessagesByUser(int account_id) {
         return messageDAO.getAllMessages().stream()
                 .filter(message -> message.getPosted_by() == account_id)
-                .toList();
+                .collect(Collectors.toList()); // Replaced toList() with collect(Collectors.toList())
     }
 }

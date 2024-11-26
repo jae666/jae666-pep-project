@@ -95,14 +95,14 @@ public class SocialMediaController {
         app.delete("/messages/{message_id}", ctx -> {
             try {
                 int message_id = Integer.parseInt(ctx.pathParam("message_id"));
-                boolean deleted = messageService.deleteMessageById(message_id);
-                if (deleted) {
-                    ctx.result("").status(200);
+                Message deletedMessage = messageService.deleteMessageById(message_id);
+                if (deletedMessage != null) {
+                    ctx.status(200).json(deletedMessage); // Return the deleted message
                 } else {
-                    ctx.result("").status(404); // Not found
+                    ctx.status(404).result("Message not found"); // Message not found
                 }
-            } catch (Exception e) {
-                ctx.result("").status(400);
+            } catch (NumberFormatException e) {
+                ctx.status(400).result("Invalid message ID"); // Invalid input format
             }
         });
 

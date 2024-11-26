@@ -77,18 +77,34 @@ public class MessageDAO {
     }
 
     // Method to delete a message by ID
-    public boolean deleteMessageById(int message_id) {
-        String sql = "DELETE FROM message WHERE message_id = ?";
+    public Message deleteMessageById(int messageId) {
         try (Connection connection = ConnectionUtil.getConnection()) {
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-            pstmt.setInt(1, message_id);
-
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+            // Retrieve the message before deletion for response purposes
+            String selectQuery = "SELECT * FROM message WHERE message_id = ?";
+            PreparedStatement selectStatement = connection.prepareStatement(selectQuery);
+            selectStatement.setInt(1, messageId);
+            ResultSet rs = selectStatement.executeQuery();
+    
+            if (rs.next()) {
+                Message messageToDelete = new Message(
+                    rs.getInt("message_id"),
+                    rs.getInt("posted_by"),
+                    rs.getString("message_text"),
+                    rs.getLong("time_posted_epoch")
+                );
+    
+                // Perform the deletion
+                String deleteQuery = "DELETE FROM message WHERE message_id = ?";
+                PreparedStatement deleteStatement = connection.prepareStatement(deleteQuery);
+                deleteStatement.setInt(1, messageId);
+                deleteStatement.executeUpdate();
+    
+                return messageToDelete; // Return the deleted message
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
+        return null; // Return null if the message does not exist
     }
 
     // Method to update a message's text
