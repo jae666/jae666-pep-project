@@ -12,7 +12,6 @@ import java.util.List;
 
 public class MessageDAO {
 
-    // Method to create a new message
     public Message createMessage(Message message) {
         String sql = "INSERT INTO message (posted_by, message_text, time_posted_epoch) VALUES (?, ?, ?) RETURNING message_id";
         try (Connection connection = ConnectionUtil.getConnection()) {
@@ -32,7 +31,6 @@ public class MessageDAO {
         return null;
     }
 
-    // Method to retrieve all messages
     public List<Message> getAllMessages() {
         String sql = "SELECT * FROM message";
         List<Message> messages = new ArrayList<>();
@@ -54,7 +52,6 @@ public class MessageDAO {
         return messages;
     }
 
-    // Method to retrieve a message by ID
     public Message getMessageById(int message_id) {
         String sql = "SELECT * FROM message WHERE message_id = ?";
         try (Connection connection = ConnectionUtil.getConnection()) {
@@ -76,38 +73,34 @@ public class MessageDAO {
         return null;
     }
 
-    // Method to delete a message by ID
     public Message deleteMessageById(int messageId) {
         try (Connection connection = ConnectionUtil.getConnection()) {
-            // Retrieve the message before deletion for response purposes
             String selectQuery = "SELECT * FROM message WHERE message_id = ?";
             PreparedStatement selectStatement = connection.prepareStatement(selectQuery);
             selectStatement.setInt(1, messageId);
             ResultSet rs = selectStatement.executeQuery();
-    
+
             if (rs.next()) {
                 Message messageToDelete = new Message(
-                    rs.getInt("message_id"),
-                    rs.getInt("posted_by"),
-                    rs.getString("message_text"),
-                    rs.getLong("time_posted_epoch")
+                        rs.getInt("message_id"),
+                        rs.getInt("posted_by"),
+                        rs.getString("message_text"),
+                        rs.getLong("time_posted_epoch")
                 );
-    
-                // Perform the deletion
+
                 String deleteQuery = "DELETE FROM message WHERE message_id = ?";
                 PreparedStatement deleteStatement = connection.prepareStatement(deleteQuery);
                 deleteStatement.setInt(1, messageId);
                 deleteStatement.executeUpdate();
-    
-                return messageToDelete; // Return the deleted message
+
+                return messageToDelete;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null; // Return null if the message does not exist
+        return null;
     }
 
-    // Method to update a message's text
     public boolean updateMessageText(int message_id, String newMessageText) {
         String sql = "UPDATE message SET message_text = ? WHERE message_id = ?";
         try (Connection connection = ConnectionUtil.getConnection()) {
@@ -115,8 +108,7 @@ public class MessageDAO {
             pstmt.setString(1, newMessageText);
             pstmt.setInt(2, message_id);
 
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+            return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -25,7 +25,6 @@ public class SocialMediaController {
     public Javalin startAPI() {
         Javalin app = Javalin.create();
 
-        // Endpoint: Register a new account
         app.post("/register", ctx -> {
             try {
                 Account account = objectMapper.readValue(ctx.body(), Account.class);
@@ -33,14 +32,13 @@ public class SocialMediaController {
                 if (newAccount != null) {
                     ctx.json(newAccount).status(200);
                 } else {
-                    ctx.result("").status(400); // Invalid input or duplicate username
+                    ctx.result("").status(400);
                 }
             } catch (Exception e) {
                 ctx.result("").status(400);
             }
         });
 
-        // Endpoint: Login
         app.post("/login", ctx -> {
             try {
                 Account credentials = objectMapper.readValue(ctx.body(), Account.class);
@@ -48,14 +46,13 @@ public class SocialMediaController {
                 if (account != null) {
                     ctx.json(account).status(200);
                 } else {
-                    ctx.result("").status(401); // Unauthorized
+                    ctx.result("").status(401);
                 }
             } catch (Exception e) {
                 ctx.result("").status(400);
             }
         });
 
-        // Endpoint: Create a new message
         app.post("/messages", ctx -> {
             try {
                 Message message = objectMapper.readValue(ctx.body(), Message.class);
@@ -63,20 +60,18 @@ public class SocialMediaController {
                 if (newMessage != null) {
                     ctx.json(newMessage).status(200);
                 } else {
-                    ctx.result("").status(400); // Invalid message
+                    ctx.result("").status(400);
                 }
             } catch (Exception e) {
                 ctx.result("").status(400);
             }
         });
 
-        // Endpoint: Retrieve all messages
         app.get("/messages", ctx -> {
             List<Message> messages = messageService.getAllMessages();
             ctx.json(messages).status(200);
         });
 
-        // Endpoint: Retrieve a message by ID
         app.get("/messages/{message_id}", ctx -> {
             try {
                 int message_id = Integer.parseInt(ctx.pathParam("message_id"));
@@ -84,45 +79,43 @@ public class SocialMediaController {
                 if (message != null) {
                     ctx.json(message).status(200);
                 } else {
-                    ctx.result("").status(404); // Not found
+                    ctx.result("").status(404);
                 }
             } catch (Exception e) {
                 ctx.result("").status(400);
             }
         });
 
-        // Endpoint: Delete a message by ID
         app.delete("/messages/{message_id}", ctx -> {
             try {
                 int message_id = Integer.parseInt(ctx.pathParam("message_id"));
                 Message deletedMessage = messageService.deleteMessageById(message_id);
                 if (deletedMessage != null) {
-                    ctx.status(200).json(deletedMessage); // Return the deleted message
+                    ctx.status(200).json(deletedMessage);
                 } else {
-                    ctx.status(404).result("Message not found"); // Message not found
+                    ctx.status(404).result("Message not found");
                 }
             } catch (NumberFormatException e) {
-                ctx.status(400).result("Invalid message ID"); // Invalid input format
+                ctx.status(400).result("Invalid message ID");
             }
         });
 
-        // Endpoint: Update a message's text
         app.patch("/messages/{message_id}", ctx -> {
             try {
                 int message_id = Integer.parseInt(ctx.pathParam("message_id"));
-                Message updatedMessage = objectMapper.readValue(ctx.body(), Message.class);
-                boolean updated = messageService.updateMessageText(message_id, updatedMessage.getMessage_text());
-                if (updated) {
-                    ctx.result("").status(200);
+                Message updatedMessageInput = objectMapper.readValue(ctx.body(), Message.class);
+
+                Message updatedMessage = messageService.updateMessageText(message_id, updatedMessageInput.getMessage_text());
+                if (updatedMessage != null) {
+                    ctx.json(updatedMessage).status(200);
                 } else {
-                    ctx.result("").status(400); // Invalid input or not found
+                    ctx.result("").status(400);
                 }
             } catch (Exception e) {
                 ctx.result("").status(400);
             }
         });
 
-        // Endpoint: Retrieve all messages by a specific user
         app.get("/accounts/{account_id}/messages", ctx -> {
             try {
                 int account_id = Integer.parseInt(ctx.pathParam("account_id"));

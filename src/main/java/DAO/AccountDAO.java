@@ -10,7 +10,6 @@ import java.sql.SQLException;
 
 public class AccountDAO {
 
-    // Method to create a new account
     public Account createAccount(Account account) {
         String sql = "INSERT INTO account (username, password) VALUES (?, ?) RETURNING account_id";
         try (Connection connection = ConnectionUtil.getConnection()) {
@@ -29,7 +28,6 @@ public class AccountDAO {
         return null;
     }
 
-    // Method to retrieve an account by username
     public Account getAccountByUsername(String username) {
         String sql = "SELECT * FROM account WHERE username = ?";
         try (Connection connection = ConnectionUtil.getConnection()) {
