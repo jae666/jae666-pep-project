@@ -1,80 +1,118 @@
 package DAO;
 
-import Model.Account;
-import Util.ConnectionUtil;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import Model.Account;
+import Util.ConnectionUtil;
 
 public class AccountDAO {
 
-    // chatgpt, suu, and I created all of this. feel free to delete or edit//
-    public void createAccount(Account account)  throws IOException, InterruptedException {
-       if (account.getUsername().equals("") || account.getPassword().length() <= 3){ 
-            return;
-        } else {
-            String sql = "SELECT * FROM account WHERE username = '?'";
-            try (Connection connection = ConnectionUtil.getConnection()) {
-                PreparedStatement pstmt = connection.prepareStatement(sql);
-                pstmt.setString(1, account.getUsername());
-                ResultSet rs = pstmt.executeQuery();
-                if (rs.next()){
-                    return;
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            
-            String userN = account.getUsername();
-            String userPW = account.getPassword();
-
-            HttpRequest postRequest = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/register"))
-                .POST(HttpRequest.BodyPublishers.ofString("{" +
-                        "\"username\": \"" + userN + "\", \"password\": \"" + userPW + "\" }"))
-                .header("Content-Type", "application/json")
-                .build();
-            HttpClient webClient = HttpClient.newHttpClient();
-            int res = webClient.send(postRequest, HttpResponse.BodyHandlers.ofString()).statusCode();
-            System.out.println(res);
-
-            /*sql = "INSERT INTO account (username, password) VALUES (?, ?) RETURNING account_id";
-            try (Connection connection = ConnectionUtil.getConnection()) {
-                PreparedStatement pstmt = connection.prepareStatement(sql);
-                pstmt.setString(1, account.getUsername());
-                pstmt.setString(2, account.getPassword());
-    
-                ResultSet rs = pstmt.executeQuery();
-                if (rs.next()) {
-                    account.setAccount_id(rs.getInt("account_id"));
-                    return account;
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }*/
-
-        }
-    }
-
-    public Account getAccountByUsername(String username) {
-        String sql = "SELECT * FROM account WHERE username = ?";
-        try (Connection connection = ConnectionUtil.getConnection()) {
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-            pstmt.setString(1, username);
-
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return new Account(
+    public List<Account> getAllAccounts() {
+        Connection connection = ConnectionUtil.getConnection(); 
+        List<Account> accounts = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM Account";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Account account = new Account(
                         rs.getInt("account_id"),
                         rs.getString("username"),
                         rs.getString("password")
+                );
+                System.out.println("Account id: " + rs.getInt("account_id"));
+                System.out.println("Account username: " + rs.getString("username"));
+                System.out.println("Account password: " + rs.getString("password")); 
+                accounts.add(account);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return accounts;
+    }
+
+    public Account insertAccount(Account account) {
+        Connection connection = ConnectionUtil.getConnection();
+        try{
+            String sql = "INSERT INTO Account (account_id, username, password) VALUES (?,?,?) ";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            
+            preparedStatement.setInt(1,account.getAccount_id());
+            preparedStatement.setString(2, account.getUsername());
+            preparedStatement.setString(3,account.getPassword());
+
+            preparedStatement.executeUpdate();
+            return account; 
+        }catch(SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null; 
+    }
+
+    public Object getUsername(String username) {
+        Connection connection = ConnectionUtil.getConnection();
+        try{
+            String sql = "SELECT * FROM account WHERE username = (?)";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setString(1, username);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            while(rs.next()){
+                Account account = new Account(
+                    rs.getInt("account_id"),
+                    rs.getString("username"),
+                    rs.getString("password")
+            );
+                   return account ;
+            }
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
+    public Account create(Account account) throws Exception {
+        Connection connection =  ConnectionUtil.getConnection();
+        String query = "INSERT INTO account (username, password) VALUES (?, ?)";
+        try{
+            PreparedStatement statement = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
+            statement.setString(1, account.getUsername());
+            statement.setString(2, account.getPassword());
+            statement.execute();
+
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                //account.setAccount_id(generatedKeys.getInt(1));
+                Account acc = new Account(generatedKeys.getInt(1), account.getUsername(), account.getPassword());
+                return acc;
+            }
+        } catch(SQLException e){
+            System.out.println(e.getMessage());
+
+        }
+        return null;
+    }
+
+    public Account getAccountByUsernameAndPassword(String username, String password) {
+        String sql = "SELECT * FROM account WHERE username = ? AND password = ?";
+        try (Connection connection = ConnectionUtil.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return new Account(
+                        resultSet.getInt("account_id"),
+                        resultSet.getString("username"),
+                        resultSet.getString("password")
                 );
             }
         } catch (SQLException e) {
