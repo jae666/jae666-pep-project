@@ -137,6 +137,6 @@ public class AccountDAO {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            return null;  // Return null if account not found
+            return null;  
         }
     }
