@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MessageDAO {
-
+// chatgpt, suu, and I created all of this. feel free to delete or edit//
     public Message createMessage(Message message) {
         String sql = "INSERT INTO message (posted_by, message_text, time_posted_epoch) VALUES (?, ?, ?) RETURNING message_id";
         try (Connection connection = ConnectionUtil.getConnection()) {

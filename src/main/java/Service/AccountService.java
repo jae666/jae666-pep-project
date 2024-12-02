@@ -4,7 +4,7 @@ import DAO.AccountDAO;
 import Model.Account;
 
 public class AccountService {
-
+// chatgpt, suu, and I created all of this. feel free to delete or edit//
     private final AccountDAO accountDAO;
 
     public AccountService(AccountDAO accountDAO) {

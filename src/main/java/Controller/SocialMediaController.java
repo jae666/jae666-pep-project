@@ -11,7 +11,7 @@ import io.javalin.Javalin;
 import java.util.List;
 
 public class SocialMediaController {
-
+// chatgpt, suu, and I created all of this. feel free to delete or edit//
     private final AccountService accountService;
     private final MessageService messageService;
     private final ObjectMapper objectMapper;

@@ -4,6 +4,7 @@ import Controller.SocialMediaController;
 import io.javalin.Javalin;
 
 public class Main {
+    //i created this, feel free to edit
     public static void main(String[] args) {
         // Create an instance of SocialMediaController
         SocialMediaController controller = new SocialMediaController();
@@ -15,5 +16,7 @@ public class Main {
         app.start(8080);
 
         System.out.println("Social Media Blog API is running on http://localhost:8080/");
+
+        
     }
 }

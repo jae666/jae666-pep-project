@@ -6,7 +6,7 @@ import Model.Message;
 import java.util.List;
 
 public class MessageService {
-
+// chatgpt, suu, and I created all of this. feel free to delete or edit//
     private final MessageDAO messageDAO;
 
     public MessageService(MessageDAO messageDAO) {
