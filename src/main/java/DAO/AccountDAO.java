@@ -103,12 +103,13 @@ public class AccountDAO {
         String sql = "SELECT * FROM account WHERE username = ? AND password = ?";
         try (Connection connection = ConnectionUtil.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
+    
             preparedStatement.setString(1, username);
             preparedStatement.setString(2, password);
-
+    
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
+                // Return the account if found
                 return new Account(
                         resultSet.getInt("account_id"),
                         resultSet.getString("username"),
@@ -118,6 +119,6 @@ public class AccountDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return null; 
     }
 }

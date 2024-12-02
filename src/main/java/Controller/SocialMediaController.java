@@ -16,9 +16,11 @@ import io.javalin.http.Context;
  */
 public class SocialMediaController {
     private AccountService accountService;
+    private AccountDAO accountDAO;
+
     public SocialMediaController(){
-        this.accountService = new AccountService();
-        // accountService = new instance of AccountService in AccountService.java//
+        this.accountService = new AccountService();// accountService = new instance of AccountService in AccountService.java//
+        this.accountDAO = new AccountDAO(); // Initialize the accountDAO
     }
 
     private void registerHandler(Context ctx) throws Exception {
@@ -36,13 +38,23 @@ public class SocialMediaController {
     }
 
     private void loginHandler(Context ctx) {
-        Account credentials = ctx.bodyAsClass(Account.class);
+        Account credentials = ctx.bodyAsClass(Account.class); // Get login credentials from request body
+    
+        // Validate input
+        if (credentials.getUsername() == null || credentials.getUsername().isEmpty() ||
+            credentials.getPassword() == null || credentials.getPassword().isEmpty()) {
+            ctx.status(400).json("Username and password must not be empty.");
+            return;
+        }
+    
+        // Attempt to validate login (username and password)
         Account authenticatedAccount = accountService.validateLogin(credentials.getUsername(), credentials.getPassword());
     
         if (authenticatedAccount != null) {
-            ctx.status(200).json(authenticatedAccount);
+            ctx.status(200).json(authenticatedAccount);  // Return the account including account_id if login is successful
         } else {
-            ctx.status(401);
+            // For invalid username or password, return 401 with empty body
+            ctx.status(401).result("");  // Empty response body as per test case expectations
         }
     }
 
@@ -56,13 +68,5 @@ public class SocialMediaController {
         app.post("/register", this::registerHandler);
         app.post("/login", this::loginHandler); // New endpoint for login
         return app;
-    }
-
-    /**
-     * This is an example handler for an example endpoint.
-     * @param context The Javalin Context object manages information about both the HTTP request and response.
-     */
-    private void exampleHandler(Context context) {
-        context.json("sample text");
     }
 }

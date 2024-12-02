@@ -35,8 +35,9 @@ public class AccountService {
 
     public Account validateLogin(String username, String password) {
         if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
-            return null;
+            return null;  
         }
+    
         return accountDAO.getAccountByUsernameAndPassword(username, password);
     }
 }
