@@ -40,4 +40,8 @@ public class AccountService {
     
         return accountDAO.getAccountByUsernameAndPassword(username, password);
     }
+
+    public Account getAccountById(int accountId) {
+        return accountDAO.getAccountById(accountId);
+    }
 }

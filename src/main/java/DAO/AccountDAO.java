@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.DriverManager;
 
 import Model.Account;
 import Util.ConnectionUtil;
@@ -121,4 +122,21 @@ public class AccountDAO {
         }
         return null; 
     }
-}
+
+        // Method to retrieve an account by its ID
+        public Account getAccountById(int accountId) {
+            try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/yourdb", "user", "password")) {
+                String query = "SELECT * FROM account WHERE account_id = ?";
+                try (PreparedStatement stmt = connection.prepareStatement(query)) {
+                    stmt.setInt(1, accountId);
+                    ResultSet rs = stmt.executeQuery();
+                    if (rs.next()) {
+                        return new Account(rs.getInt("account_id"), rs.getString("username"), rs.getString("password"));
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return null;  // Return null if account not found
+        }
+    }
