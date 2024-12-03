@@ -6,7 +6,6 @@ import Service.MessageService;
 import Service.AccountService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import io.javalin.http.Handler;
 import java.util.List;
 
 public class SocialMediaController {
