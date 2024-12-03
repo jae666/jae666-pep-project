@@ -125,14 +125,13 @@ public class AccountDAO {
 
         // Method to retrieve an account by its ID
         public Account getAccountById(int accountId) {
-            try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/yourdb", "user", "password")) {
-                String query = "SELECT * FROM account WHERE account_id = ?";
-                try (PreparedStatement stmt = connection.prepareStatement(query)) {
-                    stmt.setInt(1, accountId);
-                    ResultSet rs = stmt.executeQuery();
-                    if (rs.next()) {
-                        return new Account(rs.getInt("account_id"), rs.getString("username"), rs.getString("password"));
-                    }
+            Connection connection = ConnectionUtil.getConnection();
+            String query = "SELECT * FROM account WHERE account_id = ?";
+            try (PreparedStatement stmt = connection.prepareStatement(query)) {
+                stmt.setInt(1, accountId);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    return new Account(rs.getInt("account_id"), rs.getString("username"), rs.getString("password"));
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

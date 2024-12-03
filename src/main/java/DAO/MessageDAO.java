@@ -15,7 +15,9 @@ public class MessageDAO {
     public Message createMessage(Message message) {
         Connection connection = ConnectionUtil.getConnection();
         String sql = "INSERT INTO message (posted_by, message_text, time_posted_epoch) VALUES (?, ?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+        try {
+            // Prepare statement with RETURN_GENERATED_KEYS to retrieve the auto-generated message_id
+            PreparedStatement statement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             statement.setInt(1, message.getPosted_by());
             statement.setString(2, message.getMessage_text());
             statement.setLong(3, message.getTime_posted_epoch());
@@ -23,18 +25,18 @@ public class MessageDAO {
             int rowsAffected = statement.executeUpdate();
             
             if (rowsAffected > 0) {
-                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        int generatedId = generatedKeys.getInt(1);
-                        return new Message(generatedId, message.getPosted_by(), message.getMessage_text(), message.getTime_posted_epoch());
-                    }
+                // Retrieve the generated message_id
+                ResultSet generatedKeys = statement.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    int generatedId = generatedKeys.getInt(1);
+                    return new Message(generatedId, message.getPosted_by(), message.getMessage_text(), message.getTime_posted_epoch());
                 }
             }
-            return null;
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
         }
+        
+        return null;
     }
 
     // Method to retrieve all messages
